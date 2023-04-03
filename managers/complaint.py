@@ -1,11 +1,18 @@
+import os.path
 import uuid
 
 from werkzeug.exceptions import BadRequest
 
+from constants import TEMP_FILES_PATH
 from db import db
 from managers.auth import auth
 from models import Complaint, RoleType, State, TransactionModel
+from services.s3 import S3Service
 from services.wise import WiseService
+from utils.working_with_files import decode_photo
+
+
+s3_service = S3Service()
 
 
 class ComplaintManager:
@@ -33,6 +40,24 @@ class ComplaintManager:
     def create_complaint(complaint_data):
         current_user = auth.current_user()
         complaint_data["user_id"] = current_user.id
+
+        # Before creating the complaint we need to upload the Complaint photo to s3,
+        # then fetch the URL and, removing the unnecessary data from complaint_data and save
+
+        photo_name = f"{str(uuid.uuid4())}.{complaint_data.pop('extension')}"
+        path_to_store_photo = os.path.join(TEMP_FILES_PATH, photo_name)
+        photo_as_string = complaint_data.pop("photo")
+        decode_photo(path_to_store_photo, photo_as_string)
+
+        try:
+            url = s3_service.upload_file(path_to_store_photo, photo_name)
+        except Exception as ex:
+            raise Exception("Upload to s3 failed")
+        finally:
+            os.remove(path_to_store_photo)
+
+        complaint_data["photo_url"] = url
+
         complaint = Complaint(**complaint_data)
 
         amount = complaint_data["amount"]

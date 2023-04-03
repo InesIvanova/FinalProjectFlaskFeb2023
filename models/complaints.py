@@ -11,7 +11,7 @@ class Complaint(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     photo_url = db.Column(db.String(255), nullable=False)
-    amount= db.Column(db.Float, nullable=False)
+    amount = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
     status =db.Column(
         db.Enum(State),
