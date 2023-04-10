@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 
 
 class UserRequestBase(Schema):
@@ -9,4 +9,4 @@ class UserRequestBase(Schema):
 class ComplaintBaseSchema(Schema):
     title = fields.Str(required=True)
     description = fields.Str(required=True)
-    amount = fields.Float(required=True)
+    amount = fields.Float(required=True, validate=validate.Range(min=0.01))

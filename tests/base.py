@@ -9,6 +9,10 @@ def generate_token(user):
     return AuthManager.encode_token(user)
 
 
+def mock_uuid():
+    return "1111-1111"
+
+
 class TestRESTAPIBase(TestCase):
     def create_app(self):
         return create_app("config.TestingConfig")

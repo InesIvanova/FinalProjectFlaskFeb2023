@@ -67,12 +67,9 @@ class ComplaintManager:
         db.session.add(complaint)
         db.session.flush()
 
-        transaction = ComplaintManager.issue_transaction(
+        ComplaintManager.issue_transaction(
             amount, full_name, iban, complaint.id
         )
-
-        db.session.add(transaction)
-        db.session.flush()
         db.session.commit()
         return complaint
 
@@ -118,7 +115,8 @@ class ComplaintManager:
             amount=amount,
             complaint_id=complaint_id,
         )
-        return transaction
+        db.session.add(transaction)
+        db.session.flush()
 
 
 role_mapper = {
